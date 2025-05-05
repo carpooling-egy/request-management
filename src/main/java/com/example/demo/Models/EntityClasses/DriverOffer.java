@@ -14,12 +14,13 @@ import java.util.UUID;
 public class DriverOffer {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(columnDefinition = "UUID")
+    private UUID id;
 
-    @Column(name = "user_uuid", nullable = false)
+    @Column(name = "user_uuid", nullable = false, columnDefinition = "UUID")
     private UUID userUuid;
 
+    // source
     @Column(name = "source_latitude", nullable = false, precision = 10, scale = 8)
     private BigDecimal sourceLatitude;
 
@@ -29,6 +30,7 @@ public class DriverOffer {
     @Column(name = "source_address")
     private String sourceAddress;
 
+    // destination
     @Column(name = "destination_latitude", nullable = false, precision = 10, scale = 8)
     private BigDecimal destinationLatitude;
 
@@ -38,8 +40,8 @@ public class DriverOffer {
     @Column(name = "destination_address")
     private String destinationAddress;
 
-    @Column(name = "departure_datetime", nullable = false)
-    private ZonedDateTime departureDatetime;
+    @Column(name = "departure_time", nullable = false)
+    private ZonedDateTime departureTime;
 
     @Column(name = "detour_time_minutes")
     private int detourTimeMinutes = 0;
@@ -47,9 +49,13 @@ public class DriverOffer {
     @Column(nullable = false)
     private int capacity;
 
-    @Column(name = "external_car_id")
-    private UUID externalCarId;
+    @Column(name = "selected_car_id", columnDefinition = "UUID")
+    private UUID selectedCarId;
 
+    @Column(name = "current_number_of_requests", nullable = false)
+    private int currentNumberOfRequests = 0;
+
+    // Boolean preferences
     @Column(name = "same_gender", nullable = false)
     private boolean sameGender = false;
 
@@ -59,8 +65,11 @@ public class DriverOffer {
     @Column(name = "allows_pets", nullable = false)
     private boolean allowsPets = true;
 
-    @Column(name = "created_at")
+    @Column(name = "created_at", updatable = false)
     private ZonedDateTime createdAt = ZonedDateTime.now();
 
-    // Getters and setters...
+    @Column(name = "updated_at")
+    private ZonedDateTime updatedAt = ZonedDateTime.now();
+
+    // getters & setters...
 }

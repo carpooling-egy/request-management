@@ -10,17 +10,23 @@ import java.util.UUID;
 @Data
 public class RiderRequestDTO {
     private UUID id;
-    private UUID userUuid;
+    private UUID userId;
     private BigDecimal sourceLatitude;
     private BigDecimal sourceLongitude;
     private String sourceAddress;
     private BigDecimal destinationLatitude;
     private BigDecimal destinationLongitude;
     private String destinationAddress;
-    private ZonedDateTime earliestDepartureDatetime;
-    private ZonedDateTime latestArrivalDatetime;
+    private ZonedDateTime earliestDepartureTime;
+    private ZonedDateTime latestArrivalTime;
     private int maxWalkingTimeMinutes;
     private int numberOfRiders;
-    private Long driverOfferId;
+    private boolean sameGender;
+    private boolean allowsSmoking;
+    private boolean allowsPets;
+    private boolean isMatched;
     private ZonedDateTime createdAt;
+    private ZonedDateTime updatedAt;
+    // getters & setters...
 }
+

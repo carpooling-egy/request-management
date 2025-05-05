@@ -12,15 +12,15 @@ import java.util.UUID;
 @Getter
 @Setter
 @Entity
-@Table(name = "ride_paths", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"driver_offer_id", "path_order"})
-})
-public class RidePath {
+@Table(name = "path_point",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"driver_offer_id","path_order"}))
+public class PathPoint {
 
     @Id
+    @Column(columnDefinition = "UUID")
     private UUID id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "driver_offer_id", nullable = false)
     private DriverOffer driverOffer;
 
@@ -28,29 +28,29 @@ public class RidePath {
     private int pathOrder;
 
     @Column(name = "location_type", nullable = false)
-    private String locationType; // source, pickup, dropoff, destination
+    private String locationType; // pickup | dropoff
 
-    @Column(name = "latitude", nullable = false, precision = 10, scale = 8)
+    @Column(nullable = false, precision = 10, scale = 8)
     private BigDecimal latitude;
 
-    @Column(name = "longitude", nullable = false, precision = 11, scale = 8)
+    @Column(nullable = false, precision = 11, scale = 8)
     private BigDecimal longitude;
 
-    @Column(name = "address", nullable = false)
+    @Column
     private String address;
 
     @Column(name = "expected_arrival_time", nullable = false)
     private ZonedDateTime expectedArrivalTime;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "rider_request_id")
     private RiderRequest riderRequest;
 
-    @Column(name = "created_at")
+    @Column(name = "created_at", updatable = false)
     private ZonedDateTime createdAt = ZonedDateTime.now();
 
     @Column(name = "updated_at")
     private ZonedDateTime updatedAt = ZonedDateTime.now();
 
-    // Getters and setters...
+    // getters & setters...
 }

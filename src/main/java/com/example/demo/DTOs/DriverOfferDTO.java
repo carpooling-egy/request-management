@@ -8,7 +8,7 @@ import java.util.UUID;
 
 @Data
 public class DriverOfferDTO {
-    private Long id;
+    private UUID id;
     private UUID userUuid;
     private BigDecimal sourceLatitude;
     private BigDecimal sourceLongitude;
@@ -16,12 +16,15 @@ public class DriverOfferDTO {
     private BigDecimal destinationLatitude;
     private BigDecimal destinationLongitude;
     private String destinationAddress;
-    private ZonedDateTime departureDatetime;
+    private ZonedDateTime departureTime;
     private int detourTimeMinutes;
     private int capacity;
-    private UUID externalCarId;
+    private UUID selectedCarId;
+    private int currentNumberOfRequests;
     private boolean sameGender;
     private boolean allowsSmoking;
     private boolean allowsPets;
     private ZonedDateTime createdAt;
+    private ZonedDateTime updatedAt;
+    // getters & setters...
 }

@@ -6,5 +6,5 @@ import java.util.UUID;
 import java.util.List;
 
 public interface RiderRequestRepository extends JpaRepository<RiderRequest, UUID> {
-    List<RiderRequest> findByUserUuid(UUID userUuid);
+    List<RiderRequest> findByUserId(UUID userId);
 }

@@ -8,9 +8,9 @@ import java.util.UUID;
 
 
 @Data
-public class RidePathDTO {
+public class PathPointDTO {
     private UUID id;
-    private Long driverOfferId;
+    private UUID driverOfferId;
     private int pathOrder;
     private String locationType;
     private BigDecimal latitude;
@@ -20,4 +20,5 @@ public class RidePathDTO {
     private UUID riderRequestId;
     private ZonedDateTime createdAt;
     private ZonedDateTime updatedAt;
+    // getters & setters...
 }

@@ -8,6 +8,7 @@ import java.time.ZonedDateTime;
 import java.util.UUID;
 
 
+
 @Getter
 @Setter
 @Entity
@@ -15,11 +16,13 @@ import java.util.UUID;
 public class RiderRequest {
 
     @Id
+    @Column(columnDefinition = "UUID")
     private UUID id;
 
-    @Column(name = "user_uuid", nullable = false)
-    private UUID userUuid;
+    @Column(name = "user_id", nullable = false, columnDefinition = "UUID")
+    private UUID userId;
 
+    // source
     @Column(name = "source_latitude", nullable = false, precision = 10, scale = 8)
     private BigDecimal sourceLatitude;
 
@@ -29,6 +32,7 @@ public class RiderRequest {
     @Column(name = "source_address")
     private String sourceAddress;
 
+    // destination
     @Column(name = "destination_latitude", nullable = false, precision = 10, scale = 8)
     private BigDecimal destinationLatitude;
 
@@ -38,11 +42,11 @@ public class RiderRequest {
     @Column(name = "destination_address")
     private String destinationAddress;
 
-    @Column(name = "earliest_departure_datetime", nullable = false)
-    private ZonedDateTime earliestDepartureDatetime;
+    @Column(name = "earliest_departure_time", nullable = false)
+    private ZonedDateTime earliestDepartureTime;
 
-    @Column(name = "latest_arrival_datetime")
-    private ZonedDateTime latestArrivalDatetime;
+    @Column(name = "latest_arrival_time", nullable = false)
+    private ZonedDateTime latestArrivalTime;
 
     @Column(name = "max_walking_time_minutes")
     private int maxWalkingTimeMinutes = 5;
@@ -50,12 +54,24 @@ public class RiderRequest {
     @Column(name = "number_of_riders", nullable = false)
     private int numberOfRiders = 1;
 
-    @ManyToOne
-    @JoinColumn(name = "driver_offer_id")
-    private DriverOffer driverOffer;
+    // Boolean preferences
+    @Column(name = "same_gender", nullable = false)
+    private boolean sameGender = false;
 
-    @Column(name = "created_at")
+    @Column(name = "allows_smoking", nullable = false)
+    private boolean allowsSmoking = true;
+
+    @Column(name = "allows_pets", nullable = false)
+    private boolean allowsPets = true;
+
+    @Column(name = "is_matched")
+    private boolean isMatched = false;
+
+    @Column(name = "created_at", updatable = false)
     private ZonedDateTime createdAt = ZonedDateTime.now();
 
-    // Getters and setters...
+    @Column(name = "updated_at")
+    private ZonedDateTime updatedAt = ZonedDateTime.now();
+
+    // getters & setters...
 }

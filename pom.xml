@@ -49,7 +49,7 @@
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
-			<version>42.7.1</version> <!-- or latest -->
+			<version>42.7.3</version> <!-- or latest -->
 		</dependency>
 		<dependency>
 			<groupId>jakarta.persistence</groupId>
