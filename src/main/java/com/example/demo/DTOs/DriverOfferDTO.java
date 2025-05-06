@@ -17,6 +17,7 @@ public class DriverOfferDTO {
     private BigDecimal destinationLongitude;
     private String destinationAddress;
     private ZonedDateTime departureTime;
+    private ZonedDateTime estimatedArrivalTime;
     private int detourTimeMinutes;
     private int capacity;
     private UUID selectedCarId;

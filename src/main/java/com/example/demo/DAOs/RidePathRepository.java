@@ -6,5 +6,4 @@ import java.util.UUID;
 import java.util.List;
 
 public interface RidePathRepository extends JpaRepository<PathPoint, UUID> {
-    List<PathPoint> findByDriverOfferIdOrderByPathOrderAsc(UUID driverOfferId);
 }

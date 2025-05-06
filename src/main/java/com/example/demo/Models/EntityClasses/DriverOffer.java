@@ -43,6 +43,9 @@ public class DriverOffer {
     @Column(name = "departure_time", nullable = false)
     private ZonedDateTime departureTime;
 
+    @Column(name = "estimated_arrival_time", nullable = false)
+    private ZonedDateTime estimatedArrivalTime;
+
     @Column(name = "detour_time_minutes")
     private int detourTimeMinutes = 0;
 

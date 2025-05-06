@@ -6,5 +6,4 @@ import java.util.UUID;
 import java.util.List;
 
 public interface RideMatchRepository extends JpaRepository<RideMatch, UUID> {
-    List<RideMatch> findByDriverOfferId(UUID driverOfferId);
 }
