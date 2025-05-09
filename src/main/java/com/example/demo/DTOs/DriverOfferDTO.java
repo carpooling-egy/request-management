@@ -1,5 +1,6 @@
 package com.example.demo.DTOs;
 
+import com.example.demo.Enums.GenderType;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -17,7 +18,7 @@ public class DriverOfferDTO {
     private BigDecimal destinationLongitude;
     private String destinationAddress;
     private ZonedDateTime departureTime;
-    private ZonedDateTime estimatedArrivalTime;
+    private ZonedDateTime MaxEstimatedArrivalTime;
     private int detourTimeMinutes;
     private int capacity;
     private UUID selectedCarId;
@@ -25,6 +26,7 @@ public class DriverOfferDTO {
     private boolean sameGender;
     private boolean allowsSmoking;
     private boolean allowsPets;
+    private GenderType userGender;
     private ZonedDateTime createdAt;
     private ZonedDateTime updatedAt;
     // getters & setters...

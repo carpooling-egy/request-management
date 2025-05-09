@@ -1,4 +1,5 @@
 package com.example.demo.Models.EntityClasses;
+import com.example.demo.Enums.GenderType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,8 +18,8 @@ public class DriverOffer {
     @Column(columnDefinition = "UUID")
     private UUID id;
 
-    @Column(name = "user_uuid", nullable = false, columnDefinition = "UUID")
-    private UUID userUuid;
+    @Column(name = "user_id", nullable = false, columnDefinition = "UUID")
+    private UUID userId;
 
     // source
     @Column(name = "source_latitude", nullable = false, precision = 10, scale = 8)
@@ -43,11 +44,14 @@ public class DriverOffer {
     @Column(name = "departure_time", nullable = false)
     private ZonedDateTime departureTime;
 
+    @Column(name = "max_estimated_arrival_time", nullable = false)
+    private ZonedDateTime maxEstimatedArrivalTime;
+
     @Column(name = "estimated_arrival_time", nullable = false)
     private ZonedDateTime estimatedArrivalTime;
 
-    @Column(name = "detour_time_minutes")
-    private int detourTimeMinutes = 0;
+    @Column(name = "detour_duration_minutes")
+    private int detourDurationMinutes = 0;
 
     @Column(nullable = false)
     private int capacity;
@@ -67,6 +71,10 @@ public class DriverOffer {
 
     @Column(name = "allows_pets", nullable = false)
     private boolean allowsPets = true;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "user_gender", nullable = false)
+    private GenderType userGender;
 
     @Column(name = "created_at", updatable = false)
     private ZonedDateTime createdAt = ZonedDateTime.now();

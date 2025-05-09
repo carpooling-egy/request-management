@@ -12,26 +12,26 @@ import java.util.UUID;
 import java.util.List;
 
 public interface DriverOfferRepository extends JpaRepository<DriverOffer, UUID> {
-    int countByUserUuidAndDepartureTimeAfter(UUID userUuid, ZonedDateTime now);
+    int countByUserIdAndDepartureTimeAfter(UUID userUuid, ZonedDateTime now);
 
     @Query("""
       SELECT d
         FROM DriverOffer d
-       WHERE d.userUuid = :userUuid
+       WHERE d.userId = :userId
          AND d.departureTime <= :newLatest
-         AND d.estimatedArrivalTime >= :newEarliest
+         AND d.maxEstimatedArrivalTime >= :newEarliest
     """)
     List<DriverOffer> findOverlappingOffers(
-            @Param("userUuid") UUID userUuid,
+            @Param("userId") UUID userId,
             @Param("newEarliest")    ZonedDateTime newEarliest,
             @Param("newLatest")      ZonedDateTime newLatest
     );
 
-    @Query("SELECT COUNT(d) FROM DriverOffer d WHERE d.userUuid = :userId AND CAST(d.createdAt AS date) = CURRENT_DATE")
+    @Query("SELECT COUNT(d) FROM DriverOffer d WHERE d.userId = :userId AND CAST(d.createdAt AS date) = CURRENT_DATE")
     int countTodayDriverOffers(@Param("userId") UUID userId);
 
     @Query("SELECT COUNT(d) FROM DriverOffer d " +
-            "WHERE d.userUuid = :userId " +
+            "WHERE d.userId = :userId " +
             "AND FUNCTION('DATE', d.departureTime) = :targetDate")
     int countDriverOffersOnDate(@Param("userId") UUID userId,
                                 @Param("targetDate") LocalDate targetDate);

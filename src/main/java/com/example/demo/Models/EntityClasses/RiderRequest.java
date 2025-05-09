@@ -1,13 +1,14 @@
 package com.example.demo.Models.EntityClasses;
+import com.example.demo.Enums.GenderType;
+
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.Type;
 
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.UUID;
-
-
 
 @Getter
 @Setter
@@ -48,8 +49,8 @@ public class RiderRequest {
     @Column(name = "latest_arrival_time", nullable = false)
     private ZonedDateTime latestArrivalTime;
 
-    @Column(name = "max_walking_time_minutes")
-    private int maxWalkingTimeMinutes = 5;
+    @Column(name = "max_walking_duration_minutes")
+    private int maxWalkingDurationMinutes = 5;
 
     @Column(name = "number_of_riders", nullable = false)
     private int numberOfRiders = 1;
@@ -63,6 +64,13 @@ public class RiderRequest {
 
     @Column(name = "allows_pets", nullable = false)
     private boolean allowsPets = true;
+
+    @Column(
+            name = "user_gender",
+            nullable = false
+    )
+    @Enumerated(EnumType.STRING)
+    private GenderType userGender;
 
     @Column(name = "is_matched")
     private boolean isMatched = false;

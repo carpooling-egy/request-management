@@ -6,31 +6,36 @@ import lombok.Setter;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 
+@Entity
 @Getter
 @Setter
-@Entity
-@Table(name = "ride_matches",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"driver_offer_id","rider_request_id"}))
+@Table(name = "ride_matches")
+@IdClass(RideMatchId.class)
 public class RideMatch {
 
     @Id
-    @GeneratedValue
-    @Column(columnDefinition = "UUID")
-    private UUID pk;       // surrogate key for JPA, not exposed externally
+    @Column(name = "driver_offer_id")
+    private UUID driverOfferId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "driver_offer_id", nullable = false)
-    private DriverOffer driverOffer;
+    @Id
+    @Column(name = "rider_request_id")
+    private UUID riderRequestId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "rider_request_id", nullable = false)
-    private RiderRequest riderRequest;
+    @OneToOne
+    @JoinColumn(name = "pickup_point_id", nullable = false)
+    private PathPoint pickupPoint;
 
-    @Column(name = "created_at", updatable = false)
-    private ZonedDateTime createdAt = ZonedDateTime.now();
+    @OneToOne
+    @JoinColumn(name = "dropoff_point_id", nullable = false)
+    private PathPoint dropoffPoint;
+
+    @Column(name = "created_at")
+    private ZonedDateTime createdAt;
 
     @Column(name = "updated_at")
-    private ZonedDateTime updatedAt = ZonedDateTime.now();
+    private ZonedDateTime updatedAt;
 
-    // getters & setters...
+    // Getters and setters omitted for brevity
 }
+
+

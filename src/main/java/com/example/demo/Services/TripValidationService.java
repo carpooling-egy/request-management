@@ -14,6 +14,8 @@ public class TripValidationService {
 
     private final RiderRequestRepository riderRepo;
     private final DriverOfferRepository driverRepo;
+    private final RouteService routeService;
+
 
     private final int minLeadMinutes;
     private final int maxUpcomingTrips;
@@ -23,6 +25,7 @@ public class TripValidationService {
     public TripValidationService(
             RiderRequestRepository riderRepo,
             DriverOfferRepository driverRepo,
+            RouteService routeService,
             @Value("${trip.minLeadTimeMinutes}") int minLeadMinutes,
             @Value("${trip.maxUpcomingTrips}") int maxUpcomingTrips,
             @Value("${trip.maxTripsPerDay}") int maxTripsPerDay,
@@ -30,13 +33,17 @@ public class TripValidationService {
     ) {
         this.riderRepo         = riderRepo;
         this.driverRepo        = driverRepo;
+        this.routeService      = routeService;
         this.minLeadMinutes    = minLeadMinutes;
         this.maxUpcomingTrips  = maxUpcomingTrips;
         this.maxTripsPerDay    = maxTripsPerDay;
         this.maxTripsToday     = maxTripsToday;
     }
 
-    public void validateRiderTrip(UUID userId, ZonedDateTime start, ZonedDateTime end) {
+    public void validateRiderTrip(UUID userId, ZonedDateTime start, ZonedDateTime end,
+                                   double srcLat, double srcLon,
+                                   double dstLat, double dstLon) {
+        validateTravelTime(start, end, srcLat, srcLon, dstLat, dstLon);
         validateTimeOrder(start, end);
         validateLeadTime(start);
         validateNoOverlap(userId, start, end);
@@ -52,6 +59,28 @@ public class TripValidationService {
         validateUpcomingLimit(userId, start);
         validateDailyLimit(userId, start.toLocalDate());
         validateTodayLimit(userId);
+    }
+
+    private void validateTravelTime(
+            ZonedDateTime departure,
+            ZonedDateTime latestArrival,
+            double srcLat,
+            double srcLon,
+            double dstLat,
+            double dstLon
+    ) {
+        double travelMinutes = routeService.getTravelTimeMinutes(
+                srcLat, srcLon, dstLat, dstLon, departure
+        );
+        ZonedDateTime minAllowedArrival = departure.plusMinutes((long)Math.ceil(travelMinutes));
+        if (latestArrival.isBefore(minAllowedArrival)) {
+            throw new IllegalArgumentException(
+                    String.format(
+                            "Latest arrival must be ≥ departure + travel time (%.0f min): earliest allowed %s",
+                            travelMinutes, minAllowedArrival
+                    )
+            );
+        }
     }
 
     private void validateTimeOrder(ZonedDateTime start, ZonedDateTime end) {
@@ -82,7 +111,7 @@ public class TripValidationService {
 
     private void validateUpcomingLimit(UUID userId, ZonedDateTime start) {
         int upcomingRiders  = riderRepo.countByUserIdAndEarliestDepartureTimeAfter(userId, ZonedDateTime.now());
-        int upcomingDrivers = driverRepo.countByUserUuidAndDepartureTimeAfter(userId, ZonedDateTime.now());
+        int upcomingDrivers = driverRepo.countByUserIdAndDepartureTimeAfter(userId, ZonedDateTime.now());
         if (upcomingRiders + upcomingDrivers >= maxUpcomingTrips) {
             throw new IllegalArgumentException(
                     "Cannot exceed " + maxUpcomingTrips + " upcoming trips total."

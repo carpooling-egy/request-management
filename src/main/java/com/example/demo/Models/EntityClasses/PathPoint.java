@@ -1,5 +1,6 @@
 package com.example.demo.Models.EntityClasses;
 
+import com.example.demo.Enums.PointType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -27,16 +28,17 @@ public class PathPoint {
     @Column(name = "path_order", nullable = false)
     private int pathOrder;
 
-    @Column(name = "location_type", nullable = false)
-    private String locationType; // pickup | dropoff
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type", nullable = false)
+    private PointType type;
 
-    @Column(nullable = false, precision = 10, scale = 8)
+    @Column(name = "latitude", precision = 10, scale = 8)
     private BigDecimal latitude;
 
-    @Column(nullable = false, precision = 11, scale = 8)
+    @Column(name = "longitude", precision = 11, scale = 8)
     private BigDecimal longitude;
 
-    @Column
+    @Column(name = "address")
     private String address;
 
     @Column(name = "expected_arrival_time", nullable = false)

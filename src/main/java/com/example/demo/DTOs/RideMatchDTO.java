@@ -10,6 +10,8 @@ import java.util.UUID;
 public class RideMatchDTO {
     private UUID driverOfferId;
     private UUID riderRequestId;
+    private UUID pickupPointId;
+    private UUID dropoffPointId;
     private ZonedDateTime createdAt;
     private ZonedDateTime updatedAt;
     // getters & setters...

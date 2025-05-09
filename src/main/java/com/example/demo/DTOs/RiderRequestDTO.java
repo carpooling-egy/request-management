@@ -1,5 +1,6 @@
 package com.example.demo.DTOs;
 
+import com.example.demo.Enums.GenderType;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -24,6 +25,7 @@ public class RiderRequestDTO {
     private boolean sameGender;
     private boolean allowsSmoking;
     private boolean allowsPets;
+    private GenderType userGender;
     private boolean isMatched;
     private ZonedDateTime createdAt;
     private ZonedDateTime updatedAt;

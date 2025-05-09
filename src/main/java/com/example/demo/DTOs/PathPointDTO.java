@@ -1,5 +1,6 @@
 package com.example.demo.DTOs;
 
+import com.example.demo.Enums.PointType;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -12,7 +13,7 @@ public class PathPointDTO {
     private UUID id;
     private UUID driverOfferId;
     private int pathOrder;
-    private String locationType;
+    private PointType type;
     private BigDecimal latitude;
     private BigDecimal longitude;
     private String address;
