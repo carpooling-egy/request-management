@@ -1,27 +1,26 @@
+// RiderRequest.java
 package com.example.demo.Models.EntityClasses;
-import com.example.demo.Enums.GenderType;
 
+import com.example.demo.Enums.GenderType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.Type;
 
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
-import java.util.UUID;
 
+@Entity
 @Getter
 @Setter
-@Entity
 @Table(name = "rider_requests")
 public class RiderRequest {
 
     @Id
-    @Column(columnDefinition = "UUID")
-    private UUID id;
+    @Column(length = 50)
+    private String id;
 
-    @Column(name = "user_id", nullable = false, columnDefinition = "UUID")
-    private UUID userId;
+    @Column(name = "user_id", nullable = false, length = 50)
+    private String userId;
 
     // source
     @Column(name = "source_latitude", nullable = false, precision = 10, scale = 8)
@@ -65,11 +64,8 @@ public class RiderRequest {
     @Column(name = "allows_pets", nullable = false)
     private boolean allowsPets = true;
 
-    @Column(
-            name = "user_gender",
-            nullable = false
-    )
     @Enumerated(EnumType.STRING)
+    @Column(name = "user_gender", nullable = false)
     private GenderType userGender;
 
     @Column(name = "is_matched")
@@ -80,6 +76,4 @@ public class RiderRequest {
 
     @Column(name = "updated_at")
     private ZonedDateTime updatedAt = ZonedDateTime.now();
-
-    // getters & setters...
 }

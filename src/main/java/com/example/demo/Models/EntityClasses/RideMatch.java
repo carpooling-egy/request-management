@@ -1,10 +1,11 @@
+// RideMatch.java
 package com.example.demo.Models.EntityClasses;
 
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+
 import java.time.ZonedDateTime;
-import java.util.UUID;
 
 @Entity
 @Getter
@@ -14,12 +15,12 @@ import java.util.UUID;
 public class RideMatch {
 
     @Id
-    @Column(name = "driver_offer_id")
-    private UUID driverOfferId;
+    @Column(name = "driver_offer_id", length = 50)
+    private String driverOfferId;
 
     @Id
-    @Column(name = "rider_request_id")
-    private UUID riderRequestId;
+    @Column(name = "rider_request_id", length = 50)
+    private String riderRequestId;
 
     @OneToOne
     @JoinColumn(name = "pickup_point_id", nullable = false)
@@ -30,12 +31,8 @@ public class RideMatch {
     private PathPoint dropoffPoint;
 
     @Column(name = "created_at")
-    private ZonedDateTime createdAt;
+    private ZonedDateTime createdAt = ZonedDateTime.now();
 
     @Column(name = "updated_at")
-    private ZonedDateTime updatedAt;
-
-    // Getters and setters omitted for brevity
+    private ZonedDateTime updatedAt = ZonedDateTime.now();
 }
-
-

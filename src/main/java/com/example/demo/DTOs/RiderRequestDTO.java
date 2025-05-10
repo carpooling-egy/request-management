@@ -1,34 +1,25 @@
 package com.example.demo.DTOs;
 
-import com.example.demo.Enums.GenderType;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
+import lombok.NonNull;
 
-import java.math.BigDecimal;
 import java.time.ZonedDateTime;
-import java.util.UUID;
 
 
 @Data
-public class RiderRequestDTO {
-    private UUID id;
-    private UUID userId;
-    private BigDecimal sourceLatitude;
-    private BigDecimal sourceLongitude;
-    private String sourceAddress;
-    private BigDecimal destinationLatitude;
-    private BigDecimal destinationLongitude;
-    private String destinationAddress;
+public class RiderRequestDTO extends BaseTripDTO {
+    @NonNull
+    @NotBlank
     private ZonedDateTime earliestDepartureTime;
+    @NonNull
+    @NotBlank
     private ZonedDateTime latestArrivalTime;
+    @NonNull
+    @NotBlank
     private int maxWalkingTimeMinutes;
+    @NonNull
+    @NotBlank
     private int numberOfRiders;
-    private boolean sameGender;
-    private boolean allowsSmoking;
-    private boolean allowsPets;
-    private GenderType userGender;
     private boolean isMatched;
-    private ZonedDateTime createdAt;
-    private ZonedDateTime updatedAt;
-    // getters & setters...
 }
-

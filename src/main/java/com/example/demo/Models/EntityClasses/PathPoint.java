@@ -1,3 +1,4 @@
+// PathPoint.java
 package com.example.demo.Models.EntityClasses;
 
 import com.example.demo.Enums.PointType;
@@ -7,19 +8,19 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
-import java.util.UUID;
 
-
+@Entity
 @Getter
 @Setter
-@Entity
-@Table(name = "path_point",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"driver_offer_id","path_order"}))
+@Table(
+        name = "path_point",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"driver_offer_id", "path_order"})
+)
 public class PathPoint {
 
     @Id
-    @Column(columnDefinition = "UUID")
-    private UUID id;
+    @Column(length = 50)
+    private String id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "driver_offer_id", nullable = false)
@@ -45,7 +46,7 @@ public class PathPoint {
     private ZonedDateTime expectedArrivalTime;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "rider_request_id")
+    @JoinColumn(name = "rider_request_id", nullable = false)
     private RiderRequest riderRequest;
 
     @Column(name = "created_at", updatable = false)
@@ -53,6 +54,4 @@ public class PathPoint {
 
     @Column(name = "updated_at")
     private ZonedDateTime updatedAt = ZonedDateTime.now();
-
-    // getters & setters...
 }

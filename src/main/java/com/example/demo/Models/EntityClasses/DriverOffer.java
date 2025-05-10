@@ -1,4 +1,5 @@
 package com.example.demo.Models.EntityClasses;
+
 import com.example.demo.Enums.GenderType;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -6,7 +7,6 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
-import java.util.UUID;
 
 @Entity
 @Getter
@@ -15,11 +15,11 @@ import java.util.UUID;
 public class DriverOffer {
 
     @Id
-    @Column(columnDefinition = "UUID")
-    private UUID id;
+    @Column(length = 50)
+    private String id;
 
-    @Column(name = "user_id", nullable = false, columnDefinition = "UUID")
-    private UUID userId;
+    @Column(name = "user_id", nullable = false, length = 50)
+    private String userId;
 
     // source
     @Column(name = "source_latitude", nullable = false, precision = 10, scale = 8)
@@ -47,7 +47,7 @@ public class DriverOffer {
     @Column(name = "max_estimated_arrival_time", nullable = false)
     private ZonedDateTime maxEstimatedArrivalTime;
 
-    @Column(name = "estimated_arrival_time", nullable = false)
+    @Column(name = "estimated_arrival_time")
     private ZonedDateTime estimatedArrivalTime;
 
     @Column(name = "detour_duration_minutes")
@@ -55,9 +55,6 @@ public class DriverOffer {
 
     @Column(nullable = false)
     private int capacity;
-
-    @Column(name = "selected_car_id", columnDefinition = "UUID")
-    private UUID selectedCarId;
 
     @Column(name = "current_number_of_requests", nullable = false)
     private int currentNumberOfRequests = 0;
@@ -81,6 +78,4 @@ public class DriverOffer {
 
     @Column(name = "updated_at")
     private ZonedDateTime updatedAt = ZonedDateTime.now();
-
-    // getters & setters...
 }

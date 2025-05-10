@@ -1,13 +1,12 @@
--- NOTE: Users ,their gender and Cars tables are in a separate database
+-- NOTE: Users, their gender, and Cars tables are in a separate database
 -- The schema below assumes user UUIDs will be provided from that external source
 CREATE TYPE point_type AS ENUM ('pickup', 'dropoff');
 CREATE TYPE gender_type AS ENUM ('male', 'female');
 
-
 -- Rider requests table
 CREATE TABLE rider_requests (
-                                id UUID PRIMARY KEY,
-                                user_id UUID NOT NULL,
+                                id VARCHAR(50) PRIMARY KEY,
+                                user_id VARCHAR(50) NOT NULL,
 
     -- source
                                 source_latitude DECIMAL(10, 8) NOT NULL,
@@ -37,14 +36,15 @@ CREATE TABLE rider_requests (
 
 -- Driver offers table
 CREATE TABLE driver_offers (
-                               id UUID PRIMARY KEY,
-                               user_id UUID NOT NULL,
-    --source
+                               id VARCHAR(50) PRIMARY KEY,
+                               user_id VARCHAR(50) NOT NULL,
+
+    -- source
                                source_latitude DECIMAL(10, 8) NOT NULL,
                                source_longitude DECIMAL(11, 8) NOT NULL,
                                source_address TEXT,
 
-    --destination
+    -- destination
                                destination_latitude DECIMAL(10, 8) NOT NULL,
                                destination_longitude DECIMAL(11, 8) NOT NULL,
                                destination_address TEXT,
@@ -55,7 +55,7 @@ CREATE TABLE driver_offers (
 
                                detour_duration_minutes INTEGER DEFAULT 0,
                                capacity INTEGER NOT NULL CHECK (capacity > 0),
-                               selected_car_id UUID, -- Reference to car in external database
+                               selected_car_id VARCHAR(50), -- Reference to car in external database
 
                                current_number_of_requests INTEGER NOT NULL DEFAULT 0,
 
@@ -70,8 +70,8 @@ CREATE TABLE driver_offers (
 );
 
 CREATE TABLE path_point (
-                            id UUID PRIMARY KEY,
-                            driver_offer_id UUID NOT NULL REFERENCES driver_offers(id) ON DELETE CASCADE,
+                            id VARCHAR(50) PRIMARY KEY,
+                            driver_offer_id VARCHAR(50) NOT NULL REFERENCES driver_offers(id) ON DELETE CASCADE,
                             path_order INTEGER NOT NULL,
                             type point_type NOT NULL,
 
@@ -79,9 +79,8 @@ CREATE TABLE path_point (
                             longitude DECIMAL(11, 8) NOT NULL,
                             address TEXT,
 
-    -- pickup time or dropoff time depending on the type
                             expected_arrival_time TIMESTAMP WITH TIME ZONE NOT NULL,
-                            rider_request_id UUID NOT NULL REFERENCES rider_requests(id) ON DELETE CASCADE,
+                            rider_request_id VARCHAR(50) NOT NULL REFERENCES rider_requests(id) ON DELETE CASCADE,
 
                             created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
                             updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
@@ -90,17 +89,16 @@ CREATE TABLE path_point (
 
 -- Table to store matching information between driver offers and rider requests
 CREATE TABLE ride_matches (
-                              driver_offer_id UUID NOT NULL REFERENCES driver_offers(id) ON DELETE CASCADE,
-                              rider_request_id UUID NOT NULL REFERENCES rider_requests(id) ON DELETE CASCADE,
+                              driver_offer_id VARCHAR(50) NOT NULL REFERENCES driver_offers(id) ON DELETE CASCADE,
+                              rider_request_id VARCHAR(50) NOT NULL REFERENCES rider_requests(id) ON DELETE CASCADE,
 
-                              pickup_point_id UUID NOT NULL REFERENCES path_point(id) ON DELETE CASCADE,
-                              dropoff_point_id UUID NOT NULL REFERENCES path_point(id) ON DELETE CASCADE,
+                              pickup_point_id VARCHAR(50) NOT NULL REFERENCES path_point(id) ON DELETE CASCADE,
+                              dropoff_point_id VARCHAR(50) NOT NULL REFERENCES path_point(id) ON DELETE CASCADE,
 
                               created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
                               updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
                               PRIMARY KEY (driver_offer_id, rider_request_id)
 );
-
 
 -- Indexes for performance optimization
 CREATE INDEX idx_rider_requests_matching ON rider_requests(is_matched, earliest_departure_time);
@@ -108,16 +106,16 @@ CREATE INDEX idx_path_point_driver_path ON path_point(driver_offer_id, path_orde
 CREATE INDEX idx_driver_offers_availability ON driver_offers(departure_time, current_number_of_requests);
 CREATE INDEX idx_path_point_rider_request ON path_point(rider_request_id);
 
--- Create a function to update the updated_at timestamp
+-- Function to update the updated_at timestamp
 CREATE OR REPLACE FUNCTION update_updated_at_column()
-RETURNS TRIGGER AS $$
+    RETURNS TRIGGER AS $$
 BEGIN
     NEW.updated_at = CURRENT_TIMESTAMP;
-RETURN NEW;
+    RETURN NEW;
 END;
-$$ language 'plpgsql';
+$$ LANGUAGE 'plpgsql';
 
--- Create triggers for each table
+-- Triggers
 CREATE TRIGGER update_rider_requests_updated_at
     BEFORE UPDATE ON rider_requests
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();

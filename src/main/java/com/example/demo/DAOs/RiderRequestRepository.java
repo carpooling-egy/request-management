@@ -7,11 +7,11 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
-import java.util.UUID;
 import java.util.List;
 
-public interface RiderRequestRepository extends JpaRepository<RiderRequest, UUID> {
-    int countByUserIdAndEarliestDepartureTimeAfter(UUID userId, ZonedDateTime now);
+public interface RiderRequestRepository extends JpaRepository<RiderRequest, String> {
+
+    int countByUserIdAndEarliestDepartureTimeAfter(String userId, ZonedDateTime now);
 
     @Query("""
       SELECT r
@@ -21,19 +21,19 @@ public interface RiderRequestRepository extends JpaRepository<RiderRequest, UUID
          AND r.latestArrivalTime   >= :newEarliest
     """)
     List<RiderRequest> findOverlappingRequests(
-            @Param("userId")      UUID userId,
+            @Param("userId")      String userId,
             @Param("newEarliest") ZonedDateTime newEarliest,
             @Param("newLatest")   ZonedDateTime newLatest
     );
 
-
     @Query("SELECT COUNT(r) FROM RiderRequest r WHERE r.userId = :userId AND CAST(r.createdAt AS date) = CURRENT_DATE")
-    int countTodayRiderRequests(@Param("userId") UUID userId);
+    int countTodayRiderRequests(@Param("userId") String userId);
 
     @Query("SELECT COUNT(r) FROM RiderRequest r " +
             "WHERE r.userId = :userId " +
             "AND FUNCTION('DATE', r.earliestDepartureTime) = :targetDate")
-    int countRiderRequestsOnDate(@Param("userId") UUID userId,
-                                 @Param("targetDate") LocalDate targetDate);
-
+    int countRiderRequestsOnDate(
+            @Param("userId") String userId,
+            @Param("targetDate") LocalDate targetDate
+    );
 }

@@ -1,6 +1,7 @@
 package com.example.demo.Services;
 
 import com.example.demo.DTOs.RiderRequestDTO;
+import com.example.demo.Enums.GenderType;
 import com.example.demo.Models.EntityClasses.RiderRequest;
 import com.example.demo.DAOs.RiderRequestRepository;
 import org.springframework.stereotype.Service;
@@ -13,23 +14,31 @@ public class RiderRequestService {
 
     private final RiderRequestRepository riderRepo;
     private final TripValidationService validator;
+    private final GenderService genderService;
 
     public RiderRequestService(
             RiderRequestRepository riderRepo,
-            TripValidationService validator
+            TripValidationService validator,
+            GenderService genderService
     ) {
-        this.riderRepo  = riderRepo;
-        this.validator  = validator;
+        this.riderRepo     = riderRepo;
+        this.validator     = validator;
+        this.genderService = genderService;
     }
 
     public RiderRequest createRiderRequest(RiderRequestDTO dto) {
-        UUID userId = dto.getUserId();
+        // Now using String IDs
+        String userId = dto.getUserId();
         ZonedDateTime start = dto.getEarliestDepartureTime();
         ZonedDateTime end   = dto.getLatestArrivalTime();
 
+        GenderType userGender = genderService.getGender(userId);
+
         // run all validations
         validator.validateRiderTrip(
-                userId, start, end,
+                userId,
+                start,
+                end,
                 dto.getSourceLatitude().doubleValue(),
                 dto.getSourceLongitude().doubleValue(),
                 dto.getDestinationLatitude().doubleValue(),
@@ -38,7 +47,7 @@ public class RiderRequestService {
 
         // map DTO → Entity
         RiderRequest req = new RiderRequest();
-        req.setId(UUID.randomUUID());
+        req.setId(UUID.randomUUID().toString());
         req.setUserId(userId);
 
         req.setSourceLatitude(dto.getSourceLatitude());
@@ -58,7 +67,7 @@ public class RiderRequestService {
         req.setSameGender(dto.isSameGender());
         req.setAllowsSmoking(dto.isAllowsSmoking());
         req.setAllowsPets(dto.isAllowsPets());
-        req.setUserGender(dto.getUserGender()); // need api
+        req.setUserGender(userGender);
 
         req.setMatched(false);
         req.setCreatedAt(ZonedDateTime.now());
@@ -67,4 +76,3 @@ public class RiderRequestService {
         return riderRepo.save(req);
     }
 }
-

@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
-import java.util.UUID;
 
 @Service
 public class TripValidationService {
@@ -15,7 +14,6 @@ public class TripValidationService {
     private final RiderRequestRepository riderRepo;
     private final DriverOfferRepository driverRepo;
     private final RouteService routeService;
-
 
     private final int minLeadMinutes;
     private final int maxUpcomingTrips;
@@ -31,32 +29,38 @@ public class TripValidationService {
             @Value("${trip.maxTripsPerDay}") int maxTripsPerDay,
             @Value("${trip.maxTripsToday}") int maxTripsToday
     ) {
-        this.riderRepo         = riderRepo;
-        this.driverRepo        = driverRepo;
-        this.routeService      = routeService;
-        this.minLeadMinutes    = minLeadMinutes;
-        this.maxUpcomingTrips  = maxUpcomingTrips;
-        this.maxTripsPerDay    = maxTripsPerDay;
-        this.maxTripsToday     = maxTripsToday;
+        this.riderRepo        = riderRepo;
+        this.driverRepo       = driverRepo;
+        this.routeService     = routeService;
+        this.minLeadMinutes   = minLeadMinutes;
+        this.maxUpcomingTrips = maxUpcomingTrips;
+        this.maxTripsPerDay   = maxTripsPerDay;
+        this.maxTripsToday    = maxTripsToday;
     }
 
-    public void validateRiderTrip(UUID userId, ZonedDateTime start, ZonedDateTime end,
-                                   double srcLat, double srcLon,
-                                   double dstLat, double dstLon) {
+    public void validateRiderTrip(
+            String userId,
+            ZonedDateTime start,
+            ZonedDateTime end,
+            double srcLat,
+            double srcLon,
+            double dstLat,
+            double dstLon
+    ) {
         validateTravelTime(start, end, srcLat, srcLon, dstLat, dstLon);
         validateTimeOrder(start, end);
         validateLeadTime(start);
         validateNoOverlap(userId, start, end);
-        validateUpcomingLimit(userId, start);
+        validateUpcomingLimit(userId);
         validateDailyLimit(userId, start.toLocalDate());
         validateTodayLimit(userId);
     }
 
-    public void validateDriverTrip(UUID userId, ZonedDateTime start, ZonedDateTime end) {
+    public void validateDriverTrip(String userId, ZonedDateTime start, ZonedDateTime end) {
         validateTimeOrder(start, end);
         validateLeadTime(start);
         validateNoOverlap(userId, start, end);
-        validateUpcomingLimit(userId, start);
+        validateUpcomingLimit(userId);
         validateDailyLimit(userId, start.toLocalDate());
         validateTodayLimit(userId);
     }
@@ -72,7 +76,7 @@ public class TripValidationService {
         double travelMinutes = routeService.getTravelTimeMinutes(
                 srcLat, srcLon, dstLat, dstLon, departure
         );
-        ZonedDateTime minAllowedArrival = departure.plusMinutes((long)Math.ceil(travelMinutes));
+        ZonedDateTime minAllowedArrival = departure.plusMinutes((long) Math.ceil(travelMinutes));
         if (latestArrival.isBefore(minAllowedArrival)) {
             throw new IllegalArgumentException(
                     String.format(
@@ -97,8 +101,8 @@ public class TripValidationService {
         }
     }
 
-    private void validateNoOverlap(UUID userId, ZonedDateTime start, ZonedDateTime end) {
-        var overlappingRiders = riderRepo.findOverlappingRequests(userId, start, end);
+    private void validateNoOverlap(String userId, ZonedDateTime start, ZonedDateTime end) {
+        var overlappingRiders  = riderRepo.findOverlappingRequests(userId, start, end);
         var overlappingDrivers = driverRepo.findOverlappingOffers(userId, start, end);
 
         if (!overlappingRiders.isEmpty()) {
@@ -109,7 +113,7 @@ public class TripValidationService {
         }
     }
 
-    private void validateUpcomingLimit(UUID userId, ZonedDateTime start) {
+    private void validateUpcomingLimit(String userId) {
         int upcomingRiders  = riderRepo.countByUserIdAndEarliestDepartureTimeAfter(userId, ZonedDateTime.now());
         int upcomingDrivers = driverRepo.countByUserIdAndDepartureTimeAfter(userId, ZonedDateTime.now());
         if (upcomingRiders + upcomingDrivers >= maxUpcomingTrips) {
@@ -119,7 +123,7 @@ public class TripValidationService {
         }
     }
 
-    private void validateDailyLimit(UUID userId, LocalDate date) {
+    private void validateDailyLimit(String userId, LocalDate date) {
         int ridersOnDate  = riderRepo.countRiderRequestsOnDate(userId, date);
         int driversOnDate = driverRepo.countDriverOffersOnDate(userId, date);
         if (ridersOnDate + driversOnDate >= maxTripsPerDay) {
@@ -129,7 +133,7 @@ public class TripValidationService {
         }
     }
 
-    private void validateTodayLimit(UUID userId) {
+    private void validateTodayLimit(String userId) {
         int ridersToday  = riderRepo.countTodayRiderRequests(userId);
         int driversToday = driverRepo.countTodayDriverOffers(userId);
         if (ridersToday + driversToday >= maxTripsToday) {
