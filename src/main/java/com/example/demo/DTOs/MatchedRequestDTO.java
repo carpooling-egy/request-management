@@ -6,6 +6,4 @@ import lombok.Data;
 public class MatchedRequestDTO {
     public String userId;
     public String requestId;
-    public PointDTO pickupPoint;
-    public PointDTO dropoffPoint;
 }
