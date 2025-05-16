@@ -6,9 +6,9 @@ import java.util.List;
 
 @Data
 public class MatchingResultDTO {
-    public String userId;
-    public String offerId;
-    public List<MatchedRequestDTO> assignedMatchedRequests;
-    public List<PointDTO> path;
-    public int currentNumberOfRequests;
+    private String userId;
+    private String offerId;
+    private List<MatchedRequestDTO> assignedMatchedRequests;
+    private List<PointDTO> path;
+    private int currentNumberOfRequests;
 }
