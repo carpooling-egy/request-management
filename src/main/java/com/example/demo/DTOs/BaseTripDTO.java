@@ -1,6 +1,5 @@
 package com.example.demo.DTOs;
 
-import com.example.demo.Enums.GenderType;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -37,13 +36,10 @@ public abstract class BaseTripDTO {
     private String destinationAddress;
 
     // common preferences
-    @NonNull
     @NotBlank
     private boolean sameGender;
-    @NonNull
     @NotBlank
     private boolean allowsSmoking;
-    @NonNull
     @NotBlank
     private boolean allowsPets;
     //private GenderType userGender;

@@ -3,6 +3,7 @@ package com.example.demo.Services;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -15,11 +16,14 @@ import java.util.Objects;
 public class RouteService {
     private final RestTemplate rest;
     private final ObjectMapper mapper;
-    private static final String URL = "http://localhost:8002/route";
+    private final String URL;
 
-    public RouteService() {
-        this.rest = new RestTemplate();
+    public RouteService(
+            @Value("${route.service.url}") String url
+    ) {
+        this.rest   = new RestTemplate();
         this.mapper = new ObjectMapper();
+        this.URL    = url;
     }
 
     /**

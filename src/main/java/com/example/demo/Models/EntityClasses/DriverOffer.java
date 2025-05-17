@@ -7,6 +7,8 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -78,4 +80,12 @@ public class DriverOffer {
 
     @Column(name = "updated_at")
     private ZonedDateTime updatedAt = ZonedDateTime.now();
+
+    // 1:N to PathPoint
+    @OneToMany(mappedBy = "driverOffer", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PathPoint> pathPoints = new ArrayList<>();
+
+    // 1:N to RideMatch
+    @OneToMany(mappedBy = "driverOffer", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<RideMatch> rideMatches = new ArrayList<>();
 }
