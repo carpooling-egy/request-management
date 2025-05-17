@@ -38,7 +38,7 @@ public class PathPointService {
             pp.setId(UUID.randomUUID().toString());
             pp.setDriverOffer(offer);
             pp.setPathOrder(i);
-            pp.setType(PointType.valueOf(pd.getPointType().toUpperCase()));
+            pp.setType(PointType.valueOf(pd.getPointType().toLowerCase()));
             pp.setWalkingDurationMinutes(pd.getWalkingDurationMinutes());
 
             CoordinateDTO c = pd.getPoint();
@@ -58,7 +58,7 @@ public class PathPointService {
 
     public PathPoint findPoint(String offerId, String requestId, String pointType) {
         return ppRepo.findByDriverOfferIdAndRiderRequestIdAndType(
-                        offerId, requestId, PointType.valueOf(pointType.toUpperCase()))
+                        offerId, requestId, PointType.valueOf(pointType.toLowerCase()))
                 .orElseThrow(() -> new IllegalArgumentException(
                         "PathPoint not found for " + offerId + "/" + requestId + "/" + pointType));
     }

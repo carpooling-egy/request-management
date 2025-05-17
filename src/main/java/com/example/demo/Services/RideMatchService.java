@@ -8,11 +8,9 @@ import jakarta.transaction.Transactional;
 @Service
 public class RideMatchService {
     private final RideMatchRepository matchRepo;
-    private final PathPointService pathPointService;
 
-    public RideMatchService(RideMatchRepository matchRepo, PathPointService pathPointService) {
+    public RideMatchService(RideMatchRepository matchRepo) {
         this.matchRepo = matchRepo;
-        this.pathPointService = pathPointService;
     }
 
     @Transactional

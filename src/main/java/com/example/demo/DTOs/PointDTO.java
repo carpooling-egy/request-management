@@ -1,6 +1,7 @@
 package com.example.demo.DTOs;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 
 /**
@@ -11,6 +12,7 @@ import lombok.Data;
  * New DTO to replace the old PathPointDTO, matching the Go PointDTO structure.
  */
 @Data
+@NoArgsConstructor
 public class PointDTO {
     /**
      * Type of the owner: e.g., "driver" or "rider".

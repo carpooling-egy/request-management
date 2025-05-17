@@ -2,17 +2,12 @@ package com.example.demo.Services;
 
 import com.example.demo.DTOs.MatchedRequestDTO;
 import com.example.demo.DTOs.MatchingResultDTO;
-import com.example.demo.DAOs.RiderRequestRepository;
-import com.example.demo.DAOs.RideMatchRepository;
 import com.example.demo.DTOs.PointDTO;
-import com.example.demo.Models.EntityClasses.RideMatch;
-import com.example.demo.Models.EntityClasses.RiderRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.ZonedDateTime;
-import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -30,6 +25,7 @@ public class MatchingResultService {
      */
     @Transactional
     public void processMatchingResult(MatchingResultDTO dto) {
+
         // 1) mark each matched rider_request as matched
         markRiderRequestsMatched(dto.getAssignedMatchedRequests());
 

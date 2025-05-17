@@ -130,16 +130,18 @@ public class MatchingResultConsumerService {
                     MatchingResultDTO dto = objectMapper.readValue(msg.getData(), MatchingResultDTO.class);
                     // print out the message
                     log.debug("Received message: {}", dto);
-
-                    //matchingResultService.processMatchingResult(dto);
+                    matchingResultService.processMatchingResult(dto);
                     log.info("[{}] OfferID: {}, Requests: {}, Points: {}",
                             consumerType,
                             dto.getOfferId(),
-                            dto.getAssignedMatchedRequests() != null ? dto.getAssignedMatchedRequests().size() : 0,
-                            dto.getPath() != null ? dto.getPath().size() : 0
+                            dto.getAssignedMatchedRequests().size(),
+                            dto.getPath().size()
                     );
                 } catch (Exception e) {
                     log.error("Failed to parse message: {}", e.getMessage());
+                    e.printStackTrace(
+                            System.err
+                    );
                     log.debug("Raw payload: {}", new String(msg.getData()));
                 } finally {
                     msg.ack();
