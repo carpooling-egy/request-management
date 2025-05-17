@@ -1,8 +1,7 @@
 package com.example.demo.Services;
 
 import com.example.demo.DAOs.RideMatchRepository;
-import com.example.demo.Models.EntityClasses.RideMatch;
-import com.example.demo.Models.EntityClasses.RideMatchId;
+import com.example.demo.Models.EntityClasses.*;
 import org.springframework.stereotype.Service;
 import jakarta.transaction.Transactional;
 
@@ -31,12 +30,21 @@ public class RideMatchService {
                     m.setRiderRequestId(requestId);
                     return m;
                 });
-        rm.setPickupPoint(pathPointService.findPoint(offerId, requestId, pickupPointId));
-        rm.setDropoffPoint(pathPointService.findPoint(offerId, requestId, dropoffPointId));
-        // need to add it in the driver offer list
-        // need to add it in the rider request
+        PathPoint pickupPoint = new PathPoint();
+        pickupPoint.setId(pickupPointId);
+        rm.setPickupPoint(pickupPoint);
+
+        PathPoint dropoffPoint = new PathPoint();
+        dropoffPoint.setId(dropoffPointId);
+        rm.setDropoffPoint(dropoffPoint);
         // need to add the driver offer
+        DriverOffer driverOffer = new DriverOffer();
+        driverOffer.setId(offerId);
+        rm.setDriverOffer(driverOffer);
         // need to add the rider request
+        RiderRequest riderRequest = new RiderRequest();
+        riderRequest.setId(requestId);
+        rm.setRiderRequest(riderRequest);
         matchRepo.save(rm);
     }
 }

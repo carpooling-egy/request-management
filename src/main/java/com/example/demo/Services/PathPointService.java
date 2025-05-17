@@ -7,6 +7,7 @@ import com.example.demo.Enums.PointType;
 import com.example.demo.Models.EntityClasses.DriverOffer;
 import com.example.demo.Models.EntityClasses.PathPoint;
 import com.example.demo.DTOs.CoordinateDTO;
+import com.example.demo.Models.EntityClasses.RiderRequest;
 import org.springframework.stereotype.Service;
 import jakarta.transaction.Transactional;
 
@@ -18,20 +19,18 @@ import java.util.UUID;
 @Service
 public class PathPointService {
     private final PathPointRepository ppRepo;
-    private final DriverOfferService driverOfferService;
-    private final RiderRequestService riderRequestService;
 
-    public PathPointService(PathPointRepository ppRepo, DriverOfferService driverOfferService, RiderRequestService riderRequestService) {
+    public PathPointService(PathPointRepository ppRepo) {
         this.ppRepo = ppRepo;
-        this.driverOfferService = driverOfferService;
-        this.riderRequestService = riderRequestService;
     }
 
     @Transactional
     public void replacePathForOffer(String offerId, List<PointDTO> path) {
         // Delete any existing PathPoints for this offer
         ppRepo.deleteByDriverOfferId(offerId);
-        DriverOffer offer = driverOfferService.findById(offerId);
+        DriverOffer offer = new DriverOffer();
+        offer.setId(offerId);
+        // exclude first and last point the pickup and dropoff of the driver
         for (int i = 1; i < path.size()-1; i++) {
             PointDTO pd = path.get(i);
 
@@ -49,11 +48,10 @@ public class PathPointService {
 
             // only set a riderRequest when ownerType == "rider"
             if ("rider".equalsIgnoreCase(pd.getOwnerType())) {
-                pp.setRiderRequest(riderRequestService.findById(pd.getOwnerID()));
+                RiderRequest riderRequest = new RiderRequest();
+                riderRequest.setId(pd.getOwnerID());
+                pp.setRiderRequest(riderRequest);
             }
-            offer.addPathPoint(pp); // where should i make .save()?
-            // need to add it in the driver offer list put clear it first
-            // need to add it in the rider request
             ppRepo.save(pp);
         }
     }
