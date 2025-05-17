@@ -22,6 +22,18 @@ public class RideMatch {
     @Column(name = "rider_request_id", length = 50)
     private String riderRequestId;
 
+    // back to DriverOffer
+    @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId("driverOfferId")
+    @JoinColumn(name = "driver_offer_id", nullable = false)
+    private DriverOffer driverOffer;
+
+    // back to RiderRequest
+    @OneToOne(fetch = FetchType.LAZY)
+    @MapsId("riderRequestId")
+    @JoinColumn(name = "rider_request_id", nullable = false, unique = true)
+    private RiderRequest riderRequest;
+
     @OneToOne
     @JoinColumn(name = "pickup_point_id", nullable = false)
     private PathPoint pickupPoint;

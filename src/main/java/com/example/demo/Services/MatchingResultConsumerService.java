@@ -17,11 +17,16 @@ import java.util.List;
 @Service
 public class MatchingResultConsumerService {
 
+    private final MatchingResultService matchingResultService;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private JetStreamSubscription subscription;
     private Connection connection;
     private JetStream js;
     private final String consumerType = System.getenv().getOrDefault("CONSUMER_TYPE", "SHIPPING");
+
+    public MatchingResultConsumerService(MatchingResultService matchingResultService) {
+        this.matchingResultService = matchingResultService;
+    }
 
     @PostConstruct
     public void init() throws Exception {
@@ -100,6 +105,7 @@ public class MatchingResultConsumerService {
             for (Message msg : messages) {
                 try {
                     MatchingResultDTO dto = objectMapper.readValue(msg.getData(), MatchingResultDTO.class);
+                    matchingResultService.processMatchingResult(dto);
                     log.info("[{}] OfferID: {}, Requests: {}, Points: {}",
                             consumerType,
                             dto.getOfferId(),

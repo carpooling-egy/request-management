@@ -4,6 +4,7 @@ import com.example.demo.DTOs.RiderRequestDTO;
 import com.example.demo.Enums.GenderType;
 import com.example.demo.Models.EntityClasses.RiderRequest;
 import com.example.demo.DAOs.RiderRequestRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.time.ZonedDateTime;
@@ -74,5 +75,18 @@ public class RiderRequestService {
         req.setUpdatedAt(ZonedDateTime.now());
 
         return riderRepo.save(req);
+    }
+
+    @Transactional
+    public void markMatched(String requestId) {
+        RiderRequest rr = riderRepo.findById(requestId)
+                .orElseThrow(() -> new IllegalArgumentException("RiderRequest not found: " + requestId));
+        rr.setMatched(true);
+        riderRepo.save(rr);
+    }
+
+    public RiderRequest findById(String requestId) {
+        return riderRepo.findById(requestId)
+                .orElseThrow(() -> new IllegalArgumentException("RiderRequest not found: " + requestId));
     }
 }

@@ -5,6 +5,7 @@ import com.example.demo.Exceptions.GenderFetchException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
@@ -15,12 +16,14 @@ public class GenderService {
 
     private final RestTemplate rest;
     private final ObjectMapper mapper;
-    //private static final String URL_TEMPLATE = "http://localhost:8080/api/profiles/gender/{userId}";
-    private static final String URL_TEMPLATE = "https://5d2b-197-48-41-75.ngrok-free.app/api/profiles/gender/{userId}";
+    private final String URL_TEMPLATE;
 
-    public GenderService() {
-        this.rest = new RestTemplate();
-        this.mapper = new ObjectMapper();
+    public GenderService(
+            @Value("${gender.service.url-template}") String urlTemplate
+    ) {
+        this.rest        = new RestTemplate();
+        this.mapper      = new ObjectMapper();
+        this.URL_TEMPLATE = urlTemplate;
     }
 
     /**
