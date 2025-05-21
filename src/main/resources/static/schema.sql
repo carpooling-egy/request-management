@@ -26,8 +26,6 @@ CREATE TABLE rider_requests (
 
     -- Boolean preferences
                                 same_gender BOOLEAN NOT NULL DEFAULT FALSE,
-                                allows_smoking BOOLEAN NOT NULL DEFAULT TRUE,
-                                allows_pets BOOLEAN NOT NULL DEFAULT TRUE,
                                 user_gender gender_type NOT NULL,
 
                                 is_matched BOOLEAN DEFAULT FALSE,
@@ -60,25 +58,10 @@ CREATE TABLE driver_offers (
 
     -- Boolean preferences
                                same_gender BOOLEAN NOT NULL DEFAULT FALSE,
-                               allows_smoking BOOLEAN NOT NULL DEFAULT TRUE,
-                               allows_pets BOOLEAN NOT NULL DEFAULT TRUE,
                                user_gender gender_type NOT NULL,
 
                                created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
                                updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
-
--- Table to store matching information between driver offers and rider requests
-CREATE TABLE ride_matches (
-                              driver_offer_id VARCHAR(50) NOT NULL REFERENCES driver_offers(id) ON DELETE CASCADE,
-                              rider_request_id VARCHAR(50) NOT NULL REFERENCES rider_requests(id) ON DELETE CASCADE,
-
-                              pickup_point_id VARCHAR(50) NOT NULL REFERENCES path_point(id) ON DELETE CASCADE,
-                              dropoff_point_id VARCHAR(50) NOT NULL REFERENCES path_point(id) ON DELETE CASCADE,
-
-                              created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-                              updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-                              PRIMARY KEY (driver_offer_id, rider_request_id)
 );
 
 CREATE TABLE path_point (
@@ -94,12 +77,26 @@ CREATE TABLE path_point (
 
     -- pickup time or dropoff time depending on the type
                             expected_arrival_time TIMESTAMP WITH TIME ZONE NOT NULL,
-                            rider_request_id UUID NOT NULL REFERENCES rider_requests(id) ON DELETE CASCADE,
+                            rider_request_id VARCHAR(50) NOT NULL REFERENCES rider_requests(id) ON DELETE CASCADE,
 
                             created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
                             updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
                             UNIQUE (driver_offer_id, path_order)
 );
+
+-- Table to store matching information between driver offers and rider requests
+CREATE TABLE ride_matches (
+                              driver_offer_id VARCHAR(50) NOT NULL REFERENCES driver_offers(id) ON DELETE CASCADE,
+                              rider_request_id VARCHAR(50) NOT NULL REFERENCES rider_requests(id) ON DELETE CASCADE,
+
+                              pickup_point_id VARCHAR(50) NOT NULL REFERENCES path_point(id) ON DELETE CASCADE,
+                              dropoff_point_id VARCHAR(50) NOT NULL REFERENCES path_point(id) ON DELETE CASCADE,
+
+                              created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                              updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                              PRIMARY KEY (driver_offer_id, rider_request_id)
+);
+
 
 -- Indexes for performance optimization
 CREATE INDEX idx_rider_requests_matching ON rider_requests(is_matched, earliest_departure_time);
@@ -109,10 +106,10 @@ CREATE INDEX idx_path_point_rider_request ON path_point(rider_request_id);
 
 -- Create a function to update the updated_at timestamp
 CREATE OR REPLACE FUNCTION update_updated_at_column()
-    RETURNS TRIGGER AS $$
+RETURNS TRIGGER AS $$
 BEGIN
     NEW.updated_at = CURRENT_TIMESTAMP;
-    RETURN NEW;
+RETURN NEW;
 END;
 $$ language 'plpgsql';
 

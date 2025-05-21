@@ -7,6 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface RideMatchRepository extends JpaRepository<RideMatch, RideMatchId> {
-    Optional<RideMatch> findByDriverOfferIdAndRiderRequestId(String driverOfferId, String riderRequestId);
 
 }

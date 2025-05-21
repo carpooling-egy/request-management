@@ -58,12 +58,6 @@ public class RiderRequest {
     @Column(name = "same_gender", nullable = false)
     private boolean sameGender = false;
 
-    @Column(name = "allows_smoking", nullable = false)
-    private boolean allowsSmoking = true;
-
-    @Column(name = "allows_pets", nullable = false)
-    private boolean allowsPets = true;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "user_gender", nullable = false)
     private GenderType userGender;

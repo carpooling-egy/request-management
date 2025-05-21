@@ -66,8 +66,6 @@ public class RiderRequestService {
         req.setNumberOfRiders(dto.getNumberOfRiders());
 
         req.setSameGender(dto.isSameGender());
-        req.setAllowsSmoking(dto.isAllowsSmoking());
-        req.setAllowsPets(dto.isAllowsPets());
         req.setUserGender(userGender);
 
         req.setMatched(false);

@@ -38,10 +38,7 @@ public abstract class BaseTripDTO {
     // common preferences
     @NotBlank
     private boolean sameGender;
-    @NotBlank
-    private boolean allowsSmoking;
-    @NotBlank
-    private boolean allowsPets;
+
     //private GenderType userGender;
 
     // audit

@@ -72,8 +72,6 @@ public class DriverOfferService {
 
         // preferences & gender
         offer.setSameGender(dto.isSameGender());
-        offer.setAllowsSmoking(dto.isAllowsSmoking());
-        offer.setAllowsPets(dto.isAllowsPets());
         offer.setUserGender(userGender);
 
         // audit timestamps
