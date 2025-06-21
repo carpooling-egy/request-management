@@ -30,9 +30,7 @@ public abstract class BaseTripDTO {
 
     // common preferences
     private boolean sameGender = false;
-
-    //private GenderType userGender;
-
+    
     // audit
     private ZonedDateTime createdAt;
     private ZonedDateTime updatedAt;
