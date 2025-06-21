@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class RiderRequestService {
@@ -16,6 +17,11 @@ public class RiderRequestService {
     private final RiderRequestRepository riderRepo;
     private final TripValidationService validator;
     private final GenderService genderService;
+
+    /**
+     * Per-user locks to serialize request creation and avoid overlapping races.
+     */
+    private final ConcurrentHashMap<String, Object> userLocks = new ConcurrentHashMap<>();
 
     public RiderRequestService(
             RiderRequestRepository riderRepo,
@@ -28,51 +34,61 @@ public class RiderRequestService {
     }
 
     public RiderRequest createRiderRequest(RiderRequestDTO dto) {
-        // Now using String IDs
         String userId = dto.getUserId();
         ZonedDateTime start = dto.getEarliestDepartureTime();
         ZonedDateTime end   = dto.getLatestArrivalTime();
 
-        GenderType userGender = genderService.getGender(userId);
+        // Acquire or create the per-user lock
+        Object lock = userLocks.computeIfAbsent(userId, k -> new Object());
 
-        // run all validations
-        validator.validateRiderTrip(
-                userId,
-                start,
-                end,
-                dto.getSourceLatitude().doubleValue(),
-                dto.getSourceLongitude().doubleValue(),
-                dto.getDestinationLatitude().doubleValue(),
-                dto.getDestinationLongitude().doubleValue()
-        );
+        synchronized (lock) {
+            try {
+                GenderType userGender = genderService.getGender(userId);
 
-        // map DTO → Entity
-        RiderRequest req = new RiderRequest();
-        req.setId(UUID.randomUUID().toString());
-        req.setUserId(userId);
+                // run all validations under the lock
+                validator.validateRiderTrip(
+                        userId,
+                        start,
+                        end,
+                        dto.getSourceLatitude().doubleValue(),
+                        dto.getSourceLongitude().doubleValue(),
+                        dto.getDestinationLatitude().doubleValue(),
+                        dto.getDestinationLongitude().doubleValue()
+                );
 
-        req.setSourceLatitude(dto.getSourceLatitude());
-        req.setSourceLongitude(dto.getSourceLongitude());
-        req.setSourceAddress(dto.getSourceAddress());
+                // map DTO → Entity
+                RiderRequest req = new RiderRequest();
+                req.setId(UUID.randomUUID().toString());
+                req.setUserId(userId);
 
-        req.setDestinationLatitude(dto.getDestinationLatitude());
-        req.setDestinationLongitude(dto.getDestinationLongitude());
-        req.setDestinationAddress(dto.getDestinationAddress());
+                req.setSourceLatitude(dto.getSourceLatitude());
+                req.setSourceLongitude(dto.getSourceLongitude());
+                req.setSourceAddress(dto.getSourceAddress());
 
-        req.setEarliestDepartureTime(start);
-        req.setLatestArrivalTime(end);
+                req.setDestinationLatitude(dto.getDestinationLatitude());
+                req.setDestinationLongitude(dto.getDestinationLongitude());
+                req.setDestinationAddress(dto.getDestinationAddress());
 
-        req.setMaxWalkingDurationMinutes(dto.getMaxWalkingTimeMinutes());
-        req.setNumberOfRiders(dto.getNumberOfRiders());
+                req.setEarliestDepartureTime(start);
+                req.setLatestArrivalTime(end);
 
-        req.setSameGender(dto.isSameGender());
-        req.setUserGender(userGender);
+                req.setMaxWalkingDurationMinutes(dto.getMaxWalkingTimeMinutes());
+                req.setNumberOfRiders(dto.getNumberOfRiders());
 
-        req.setMatched(false);
-        req.setCreatedAt(ZonedDateTime.now());
-        req.setUpdatedAt(ZonedDateTime.now());
+                req.setSameGender(dto.isSameGender());
+                req.setUserGender(userGender);
 
-        return riderRepo.save(req);
+                req.setMatched(false);
+                req.setCreatedAt(ZonedDateTime.now());
+                req.setUpdatedAt(ZonedDateTime.now());
+
+                return riderRepo.save(req);
+
+            } finally {
+                // Clean up lock to prevent unbounded growth
+                userLocks.compute(userId, (key, existing) -> existing == lock ? null : existing);
+            }
+        }
     }
 
     public void markMatchedBatch(List<String> ids) {

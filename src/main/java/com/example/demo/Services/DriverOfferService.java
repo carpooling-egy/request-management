@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.ZonedDateTime;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class DriverOfferService {
@@ -17,6 +18,12 @@ public class DriverOfferService {
     private final TripValidationService validator;
     private final RouteService routeService;
     private final GenderService genderService;
+
+    /**
+     * A map of per-user locks. We synchronize on one lock object per userId
+     * to prevent overlapping offers being created concurrently.
+     */
+    private final ConcurrentHashMap<String, Object> userLocks = new ConcurrentHashMap<>();
 
     public DriverOfferService(
             DriverOfferRepository driverRepo,
@@ -31,54 +38,62 @@ public class DriverOfferService {
     }
 
     public DriverOffer createDriverOffer(DriverOfferDTO dto) {
-        // Now using String IDs
         String userId = dto.getUserId();
-        GenderType userGender = genderService.getGender(userId);
+        // Acquire (or create) the lock object for this user
+        Object lock = userLocks.computeIfAbsent(userId, k -> new Object());
 
-        ZonedDateTime start = dto.getDepartureTime();
-        double travelTimeMinutes = routeService
-                .getTravelTimeMinutes(
-                        dto.getSourceLatitude().doubleValue(),
-                        dto.getSourceLongitude().doubleValue(),
-                        dto.getDestinationLatitude().doubleValue(),
-                        dto.getDestinationLongitude().doubleValue(),
-                        start
-                );
-        ZonedDateTime end = start.plusMinutes((long) travelTimeMinutes + dto.getDetourTimeMinutes());
+        synchronized (lock) {
+            try {
+                // 1. Perform all validations under the lock
+                GenderType userGender = genderService.getGender(userId);
+                ZonedDateTime start = dto.getDepartureTime();
 
-        // run all validations
-        validator.validateDriverTrip(userId, start, end);
+                double travelTimeMinutes = routeService
+                        .getTravelTimeMinutes(
+                                dto.getSourceLatitude().doubleValue(),
+                                dto.getSourceLongitude().doubleValue(),
+                                dto.getDestinationLatitude().doubleValue(),
+                                dto.getDestinationLongitude().doubleValue(),
+                                start
+                        );
+                ZonedDateTime end = start.plusMinutes((long) travelTimeMinutes + dto.getDetourTimeMinutes());
 
-        // map DTO → Entity
-        DriverOffer offer = new DriverOffer();
-        offer.setId(UUID.randomUUID().toString());
-        offer.setUserId(userId);
+                validator.validateDriverTrip(userId, start, end);
 
-        offer.setSourceLatitude(dto.getSourceLatitude());
-        offer.setSourceLongitude(dto.getSourceLongitude());
-        offer.setSourceAddress(dto.getSourceAddress());
+                // 2. Map DTO → Entity and save
+                DriverOffer offer = new DriverOffer();
+                offer.setId(UUID.randomUUID().toString());
+                offer.setUserId(userId);
 
-        offer.setDestinationLatitude(dto.getDestinationLatitude());
-        offer.setDestinationLongitude(dto.getDestinationLongitude());
-        offer.setDestinationAddress(dto.getDestinationAddress());
+                offer.setSourceLatitude(dto.getSourceLatitude());
+                offer.setSourceLongitude(dto.getSourceLongitude());
+                offer.setSourceAddress(dto.getSourceAddress());
 
-        offer.setDepartureTime(start);
-        offer.setDetourDurationMinutes(dto.getDetourTimeMinutes());
-        offer.setCapacity(dto.getCapacity());
-        offer.setMaxEstimatedArrivalTime(end);
+                offer.setDestinationLatitude(dto.getDestinationLatitude());
+                offer.setDestinationLongitude(dto.getDestinationLongitude());
+                offer.setDestinationAddress(dto.getDestinationAddress());
 
-        // currentNumberOfRequests typically starts at 0
-        offer.setCurrentNumberOfRequests(dto.getCurrentNumberOfRequests());
+                offer.setDepartureTime(start);
+                offer.setDetourDurationMinutes(dto.getDetourTimeMinutes());
+                offer.setCapacity(dto.getCapacity());
+                offer.setMaxEstimatedArrivalTime(end);
 
-        // preferences & gender
-        offer.setSameGender(dto.isSameGender());
-        offer.setUserGender(userGender);
+                offer.setCurrentNumberOfRequests(dto.getCurrentNumberOfRequests());
+                offer.setSameGender(dto.isSameGender());
+                offer.setUserGender(userGender);
 
-        // audit timestamps
-        offer.setCreatedAt(ZonedDateTime.now());
-        offer.setUpdatedAt(ZonedDateTime.now());
+                offer.setCreatedAt(ZonedDateTime.now());
+                offer.setUpdatedAt(ZonedDateTime.now());
 
-        return driverRepo.save(offer);
+                return driverRepo.save(offer);
+            } finally {
+                // Optional: clean up the lock if no longer needed to prevent memory leaks
+                userLocks.compute(userId, (key, existingLock) -> {
+                    // only remove if it’s the same lock object (i.e. no one else added a new one)
+                    return (existingLock == lock) ? null : existingLock;
+                });
+            }
+        }
     }
 
     public void updateArrivalTimeAndRequestCount(String offerId, ZonedDateTime arrivalTime, int count) {
