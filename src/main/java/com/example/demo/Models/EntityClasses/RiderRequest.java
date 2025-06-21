@@ -8,6 +8,8 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -71,9 +73,8 @@ public class RiderRequest {
     @Column(name = "updated_at")
     private ZonedDateTime updatedAt = ZonedDateTime.now();
 
-    // 1:1 back ref to PathPoint
-    @OneToOne(mappedBy = "riderRequest", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private PathPoint pathPoint;
+    @OneToMany(mappedBy = "riderRequest", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PathPoint> pathPoints = new ArrayList<>();
 
     // 1:1 back ref to RideMatch
     @OneToOne(mappedBy = "riderRequest", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)

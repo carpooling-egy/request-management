@@ -48,9 +48,8 @@ public class PathPoint {
     @Column(name = "expected_arrival_time", nullable = false)
     private ZonedDateTime expectedArrivalTime;
 
-    // 1:1 to RiderRequest (enforced unique)
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "rider_request_id", nullable = false, unique = true)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "rider_request_id", nullable = false)
     private RiderRequest riderRequest;
 
     @Column(name = "created_at", updatable = false)
