@@ -2,11 +2,13 @@ package com.example.demo.DAOs;
 
 import com.example.demo.Models.EntityClasses.RiderRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
+import java.util.Collection;
 import java.util.List;
 
 public interface RiderRequestRepository extends JpaRepository<RiderRequest, String> {
@@ -36,4 +38,9 @@ public interface RiderRequestRepository extends JpaRepository<RiderRequest, Stri
             @Param("userId") String userId,
             @Param("targetDate") LocalDate targetDate
     );
+
+    @Modifying
+    @Query("UPDATE RiderRequest r SET r.isMatched = true WHERE r.id IN :ids")
+    int markMatchedByIds(@Param("ids") Collection<String> ids);
+
 }

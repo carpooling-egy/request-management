@@ -3,7 +3,6 @@ package com.example.demo.Services;
 import com.example.demo.DAOs.RideMatchRepository;
 import com.example.demo.Models.EntityClasses.*;
 import org.springframework.stereotype.Service;
-import jakarta.transaction.Transactional;
 
 @Service
 public class RideMatchService {
@@ -13,7 +12,6 @@ public class RideMatchService {
         this.matchRepo = matchRepo;
     }
 
-    @Transactional
     public void createOrUpdateMatch(
             String offerId,
             String requestId,

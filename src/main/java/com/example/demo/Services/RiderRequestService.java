@@ -4,10 +4,10 @@ import com.example.demo.DTOs.RiderRequestDTO;
 import com.example.demo.Enums.GenderType;
 import com.example.demo.Models.EntityClasses.RiderRequest;
 import com.example.demo.DAOs.RiderRequestRepository;
-import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -75,16 +75,13 @@ public class RiderRequestService {
         return riderRepo.save(req);
     }
 
-    @Transactional
-    public void markMatched(String requestId) {
-        RiderRequest rr = riderRepo.findById(requestId)
-                .orElseThrow(() -> new IllegalArgumentException("RiderRequest not found: " + requestId));
-        rr.setMatched(true);
-        riderRepo.save(rr);
-    }
-
-    public RiderRequest findById(String requestId) {
-        return riderRepo.findById(requestId)
-                .orElseThrow(() -> new IllegalArgumentException("RiderRequest not found: " + requestId));
+    public void markMatchedBatch(List<String> ids) {
+        if (ids == null || ids.isEmpty()) {
+            throw new IllegalArgumentException("Cannot mark empty list of requests as matched");
+        }
+        int updatedCount = riderRepo.markMatchedByIds(ids);
+        if (updatedCount != ids.size()) {
+            throw new IllegalStateException("Expected to update " + ids.size() + " requests, but updated only " + updatedCount);
+        }
     }
 }

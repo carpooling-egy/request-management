@@ -4,7 +4,7 @@ import com.example.demo.DTOs.DriverOfferDTO;
 import com.example.demo.Enums.GenderType;
 import com.example.demo.Models.EntityClasses.DriverOffer;
 import com.example.demo.DAOs.DriverOfferRepository;
-import jakarta.transaction.Transactional;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.ZonedDateTime;
@@ -81,25 +81,10 @@ public class DriverOfferService {
         return driverRepo.save(offer);
     }
 
-    // additions to DriverOfferService.java
-    @Transactional
-    public void updateEstimatedArrivalTime(String offerId, ZonedDateTime arrivalTime) {
-        DriverOffer o = driverRepo.findById(offerId)
-                .orElseThrow(() -> new IllegalArgumentException("DriverOffer not found: " + offerId));
-        o.setEstimatedArrivalTime(arrivalTime);
-        driverRepo.save(o);
-    }
-
-    @Transactional
-    public void updateCurrentNumberOfRequests(String offerId, int count) {
-        DriverOffer o = driverRepo.findById(offerId)
-                .orElseThrow(() -> new IllegalArgumentException("DriverOffer not found: " + offerId));
-        o.setCurrentNumberOfRequests(count);
-        driverRepo.save(o);
-    }
-
-    public DriverOffer findById(String offerId) {
-        return driverRepo.findById(offerId)
-                .orElseThrow(() -> new IllegalArgumentException("DriverOffer not found: " + offerId));
+    public void updateArrivalTimeAndRequestCount(String offerId, ZonedDateTime arrivalTime, int count) {
+        int rows = driverRepo.updateArrivalTimeAndRequestCount(offerId, arrivalTime, count);
+        if (rows == 0) {
+            throw new EntityNotFoundException("DriverOffer not found: " + offerId);
+        }
     }
 }

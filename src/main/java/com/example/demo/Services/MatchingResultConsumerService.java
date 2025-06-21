@@ -7,6 +7,7 @@ import io.nats.client.api.ConsumerInfo;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +28,11 @@ public class MatchingResultConsumerService {
     private final ExecutorService connectExecutor = Executors.newSingleThreadExecutor();
     private final String consumerType = System.getenv().getOrDefault("CONSUMER_TYPE", "SHIPPING");
 
+    // default to 10 seconds if the property is missing or malformed
+    @Value("${nats.reconnect-wait-seconds:10}")
+    private int reconnectWaitSeconds;
+
+
     public MatchingResultConsumerService(MatchingResultService matchingResultService) {
         this.matchingResultService = matchingResultService;
     }
@@ -45,7 +51,7 @@ public class MatchingResultConsumerService {
                 .userInfo("subscriber", "subscriberpass")
                 .connectionName("matching-results-consumer")
                 .maxReconnects(-1)                          // infinite reconnects after first success
-                .reconnectWait(Duration.ofSeconds(2))       // 2s between reconnect attempts
+                .reconnectWait(Duration.ofSeconds(reconnectWaitSeconds))       // 10s between reconnect attempts
                 .connectionListener(this::handleEvent)
                 .errorListener(new ErrorListener() {
                     @Override
@@ -115,8 +121,8 @@ public class MatchingResultConsumerService {
         }
     }
 
-    // Run every 3 seconds
-    @Scheduled(fixedDelay = 3000)
+    // Run every 1 Min
+    @Scheduled(fixedDelayString = "${matching.consumer.poll-delay-ms:60000}")
     public void pollMessages() {
         JetStreamSubscription sub = this.subscription;
         if (sub == null) {

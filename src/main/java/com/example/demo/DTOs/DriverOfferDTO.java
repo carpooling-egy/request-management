@@ -1,22 +1,22 @@
 package com.example.demo.DTOs;
 
+import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 
 import java.time.ZonedDateTime;
 
 @Data
 @NoArgsConstructor
 public class DriverOfferDTO extends BaseTripDTO {
-    @NonNull
-    @NotBlank
+    @Future
     private ZonedDateTime departureTime;
     private ZonedDateTime maxEstimatedArrivalTime;
-    @NotBlank
+    @Min(0)
     private int detourTimeMinutes;
-    @NotBlank
+    @Min(1)
     private int capacity;
     private int currentNumberOfRequests;
 }

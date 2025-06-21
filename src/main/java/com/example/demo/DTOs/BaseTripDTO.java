@@ -1,9 +1,9 @@
 package com.example.demo.DTOs;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
@@ -13,39 +13,27 @@ import java.time.ZonedDateTime;
 public abstract class BaseTripDTO {
 
     private String id;
-    @NonNull
     @NotBlank
     private String userId;
-    @NonNull
-    @NotBlank
+    @NotNull
     private BigDecimal sourceLatitude;
-    @NonNull
-    @NotBlank
+    @NotNull
     private BigDecimal sourceLongitude;
-    @NonNull
     @NotBlank
     private String sourceAddress;
-    @NonNull
-    @NotBlank
+    @NotNull
     private BigDecimal destinationLatitude;
-    @NonNull
-    @NotBlank
+    @NotNull
     private BigDecimal destinationLongitude;
-    @NonNull
     @NotBlank
     private String destinationAddress;
 
     // common preferences
-    @NotBlank
-    private boolean sameGender;
+    private boolean sameGender = false;
 
     //private GenderType userGender;
 
     // audit
-    @NonNull
-    @NotBlank
     private ZonedDateTime createdAt;
-    @NonNull
-    @NotBlank
     private ZonedDateTime updatedAt;
 }

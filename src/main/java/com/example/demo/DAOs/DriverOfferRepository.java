@@ -2,6 +2,7 @@ package com.example.demo.DAOs;
 
 import com.example.demo.Models.EntityClasses.DriverOffer;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -36,4 +37,15 @@ public interface DriverOfferRepository extends JpaRepository<DriverOffer, String
             @Param("userId") String userId,
             @Param("targetDate") LocalDate targetDate
     );
+
+    @Modifying(clearAutomatically = true)
+    @Query("UPDATE DriverOffer d " +
+            "   SET d.estimatedArrivalTime      = :arrivalTime, " +
+            "       d.currentNumberOfRequests   = :count, " +
+            "       d.updatedAt                 = CURRENT_TIMESTAMP " +
+            " WHERE d.id = :offerId")
+    int updateArrivalTimeAndRequestCount(@Param("offerId")    String offerId,
+                                         @Param("arrivalTime") ZonedDateTime arrivalTime,
+                                         @Param("count")       int count);
+
 }

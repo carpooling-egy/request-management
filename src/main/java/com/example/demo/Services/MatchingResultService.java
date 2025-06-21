@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,39 +30,32 @@ public class MatchingResultService {
         // 1) mark each matched rider_request as matched
         markRiderRequestsMatched(dto.getAssignedMatchedRequests());
 
-        // 2) update the estimated arrival time of the driver offer which is the time of the last point
-        updateDriverOfferArrival(dto.getOfferId(), dto.getPath());
+        // 2) update the estimated arrival time and request count of the driver offer
+        updateDriverOffer(dto.getOfferId(), dto.getPath(), dto.getCurrentNumberOfRequests());
 
-        // 3) update the number of requests in the driver offer
-        updateDriverOfferRequestCount(dto.getOfferId(), dto.getCurrentNumberOfRequests());
-
-        // 4) update the path point table.
+        // 3) update the path point table.
         updatePathPoints(dto.getOfferId(), dto.getPath());
 
-        // 5) create and save our RideMatch entity if it doesn't exist. if it already exists, update it
+        // 4) create and save our RideMatch entity if it doesn't exist. if it already exists, update it
         saveOrUpdateRideMatches(dto);
 
     }
 
     private void markRiderRequestsMatched(List<MatchedRequestDTO> matchedRequests) {
-        matchedRequests.forEach(mr ->
-                riderRequestService.markMatched(mr.getRequestId())
-        );
+        List<String> ids = matchedRequests.stream()
+                .map(MatchedRequestDTO::getRequestId)
+                .collect(Collectors.toList());
+        riderRequestService.markMatchedBatch(ids);
     }
 
-
-    private void updateDriverOfferArrival(String offerId, List<PointDTO> path) {
+    private void updateDriverOffer(String offerId, List<PointDTO> path, int requestCount) {
         if (path == null || path.isEmpty()) {
             throw new IllegalStateException("No path points for offer " + offerId);
         }
-
         ZonedDateTime lastTime = ZonedDateTime.parse(path.getLast().getTime());
-        driverOfferService.updateEstimatedArrivalTime(offerId, lastTime);
+        driverOfferService.updateArrivalTimeAndRequestCount(offerId, lastTime, requestCount);
     }
 
-    private void updateDriverOfferRequestCount(String offerId, int count) {
-        driverOfferService.updateCurrentNumberOfRequests(offerId, count);
-    }
 
     private void updatePathPoints(String offerId, List<PointDTO> path) {
         pathPointService.replacePathForOffer(offerId, path);

@@ -9,10 +9,10 @@ import com.example.demo.Models.EntityClasses.PathPoint;
 import com.example.demo.DTOs.CoordinateDTO;
 import com.example.demo.Models.EntityClasses.RiderRequest;
 import org.springframework.stereotype.Service;
-import jakarta.transaction.Transactional;
 
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,12 +24,15 @@ public class PathPointService {
         this.ppRepo = ppRepo;
     }
 
-    @Transactional
     public void replacePathForOffer(String offerId, List<PointDTO> path) {
         // Delete any existing PathPoints for this offer
         ppRepo.deleteByDriverOfferId(offerId);
         DriverOffer offer = new DriverOffer();
         offer.setId(offerId);
+
+        // 3) collect all new PathPoint entities
+        List<PathPoint> pointsToSave = new ArrayList<>(path.size() - 2);
+
         // exclude first and last point the pickup and dropoff of the driver
         for (int i = 1; i < path.size()-1; i++) {
             PointDTO pd = path.get(i);
@@ -52,8 +55,10 @@ public class PathPointService {
                 riderRequest.setId(pd.getOwnerID());
                 pp.setRiderRequest(riderRequest);
             }
-            ppRepo.save(pp);
+            pointsToSave.add(pp);
         }
+        // 4) save all PathPoint entities
+        ppRepo.saveAll(pointsToSave);
     }
 
     public PathPoint findPoint(String offerId, String requestId, String pointType) {
