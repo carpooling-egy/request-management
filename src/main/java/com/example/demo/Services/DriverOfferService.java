@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.ZonedDateTime;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class DriverOfferService {
@@ -18,35 +17,30 @@ public class DriverOfferService {
     private final TripValidationService validator;
     private final RouteService routeService;
     private final GenderService genderService;
-
-    /**
-     * A map of per-user locks. We synchronize on one lock object per userId
-     * to prevent overlapping offers being created concurrently.
-     */
-    private final ConcurrentHashMap<String, Object> userLocks = new ConcurrentHashMap<>();
+    private final UserLockRegistry lockRegistry;
 
     public DriverOfferService(
             DriverOfferRepository driverRepo,
             TripValidationService validator,
             RouteService routeService,
-            GenderService genderService
+            GenderService genderService,
+            UserLockRegistry lockRegistry
     ) {
-        this.driverRepo = driverRepo;
-        this.validator  = validator;
+        this.driverRepo   = driverRepo;
+        this.validator    = validator;
         this.routeService = routeService;
-        this.genderService = genderService;
+        this.genderService= genderService;
+        this.lockRegistry = lockRegistry;
     }
 
     public DriverOffer createDriverOffer(DriverOfferDTO dto) {
         String userId = dto.getUserId();
-        // Acquire (or create) the lock object for this user
-        Object lock = userLocks.computeIfAbsent(userId, k -> new Object());
+        Object lock   = lockRegistry.getLock(userId);
 
         synchronized (lock) {
             try {
-                // 1. Perform all validations under the lock
                 GenderType userGender = genderService.getGender(userId);
-                ZonedDateTime start = dto.getDepartureTime();
+                ZonedDateTime start   = dto.getDepartureTime();
 
                 double travelTimeMinutes = routeService
                         .getTravelTimeMinutes(
@@ -60,7 +54,6 @@ public class DriverOfferService {
 
                 validator.validateDriverTrip(userId, start, end);
 
-                // 2. Map DTO → Entity and save
                 DriverOffer offer = new DriverOffer();
                 offer.setId(UUID.randomUUID().toString());
                 offer.setUserId(userId);
@@ -87,11 +80,7 @@ public class DriverOfferService {
 
                 return driverRepo.save(offer);
             } finally {
-                // Optional: clean up the lock if no longer needed to prevent memory leaks
-                userLocks.compute(userId, (key, existingLock) -> {
-                    // only remove if it’s the same lock object (i.e. no one else added a new one)
-                    return (existingLock == lock) ? null : existingLock;
-                });
+                lockRegistry.cleanup(userId, lock);
             }
         }
     }

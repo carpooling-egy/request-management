@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class RiderRequestService {
@@ -17,20 +16,18 @@ public class RiderRequestService {
     private final RiderRequestRepository riderRepo;
     private final TripValidationService validator;
     private final GenderService genderService;
-
-    /**
-     * Per-user locks to serialize request creation and avoid overlapping races.
-     */
-    private final ConcurrentHashMap<String, Object> userLocks = new ConcurrentHashMap<>();
+    private final UserLockRegistry lockRegistry;
 
     public RiderRequestService(
             RiderRequestRepository riderRepo,
             TripValidationService validator,
-            GenderService genderService
+            GenderService genderService,
+            UserLockRegistry lockRegistry
     ) {
         this.riderRepo     = riderRepo;
         this.validator     = validator;
         this.genderService = genderService;
+        this.lockRegistry  = lockRegistry;
     }
 
     public RiderRequest createRiderRequest(RiderRequestDTO dto) {
@@ -38,8 +35,8 @@ public class RiderRequestService {
         ZonedDateTime start = dto.getEarliestDepartureTime();
         ZonedDateTime end   = dto.getLatestArrivalTime();
 
-        // Acquire or create the per-user lock
-        Object lock = userLocks.computeIfAbsent(userId, k -> new Object());
+        // Acquire per-user lock from shared registry
+        Object lock = lockRegistry.getLock(userId);
 
         synchronized (lock) {
             try {
@@ -85,8 +82,8 @@ public class RiderRequestService {
                 return riderRepo.save(req);
 
             } finally {
-                // Clean up lock to prevent unbounded growth
-                userLocks.compute(userId, (key, existing) -> existing == lock ? null : existing);
+                // Cleanup the lock entry
+                lockRegistry.cleanup(userId, lock);
             }
         }
     }
@@ -101,3 +98,4 @@ public class RiderRequestService {
         }
     }
 }
+
