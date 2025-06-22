@@ -1,0 +1,22 @@
+version: '3.8'
+services:
+  app:
+    build: .
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgis-dev-server.postgres.database.azure.com:5432/postgres?sslmode=require
+      SPRING_DATASOURCE_USERNAME: admin_carpooling_app
+      SPRING_DATASOURCE_PASSWORD: Fr75$gj2@o9)
+      TRIP_MINLEADTIMEMINUTES: 30
+      TRIP_MAXUPCOMINGTRIPS: 30
+      TRIP_MAXTRIPSPERDAY: 5
+      TRIP_MAXTRIPSTODAY: 5
+      ROUTE_SERVICE_URL: http://localhost:8002/route
+      GENDER_SERVICE_URL_TEMPLATE: https://localhost:8080/api/profiles/gender/{userId}
+      MATCHING_CONSUMER_POLL_DELAY_MS: 60000
+      NATS_RECONNECT_WAIT_SECONDS: 10
+    ports:
+      - "8080:8080"
+    restart: always
+
+volumes:
+  db_data: 
