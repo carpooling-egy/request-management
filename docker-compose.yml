@@ -1,6 +1,6 @@
 version: '3.8'
 services:
-  app:
+  request-management-service:
     build: .
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgis-dev-server.postgres.database.azure.com:5432/postgres?sslmode=require
