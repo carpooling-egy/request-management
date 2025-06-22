@@ -3,7 +3,6 @@ package com.example.demo.Models.EntityClasses;
 
 import java.io.Serializable;
 import java.util.Objects;
-
 public class RideMatchId implements Serializable {
     private String driverOfferId;
     private String riderRequestId;

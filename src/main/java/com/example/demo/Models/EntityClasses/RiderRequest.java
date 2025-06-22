@@ -8,6 +8,8 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -58,12 +60,6 @@ public class RiderRequest {
     @Column(name = "same_gender", nullable = false)
     private boolean sameGender = false;
 
-    @Column(name = "allows_smoking", nullable = false)
-    private boolean allowsSmoking = true;
-
-    @Column(name = "allows_pets", nullable = false)
-    private boolean allowsPets = true;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "user_gender", nullable = false)
     private GenderType userGender;
@@ -76,4 +72,11 @@ public class RiderRequest {
 
     @Column(name = "updated_at")
     private ZonedDateTime updatedAt = ZonedDateTime.now();
+
+    @OneToMany(mappedBy = "riderRequest", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PathPoint> pathPoints = new ArrayList<>();
+
+    // 1:1 back ref to RideMatch
+    @OneToOne(mappedBy = "riderRequest", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private RideMatch rideMatch;
 }

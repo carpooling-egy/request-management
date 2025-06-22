@@ -1,9 +1,11 @@
 package com.example.demo.DTOs;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
 public class CoordinateDTO {
-    public double lat;
-    public double lng;
+    private double lat;
+    private double lng;
 }

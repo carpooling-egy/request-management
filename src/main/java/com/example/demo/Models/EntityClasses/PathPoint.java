@@ -33,6 +33,9 @@ public class PathPoint {
     @Column(name = "type", nullable = false)
     private PointType type;
 
+    @Column(name = "walking_duration_minutes")
+    private int walkingDurationMinutes = 0;
+
     @Column(name = "latitude", precision = 10, scale = 8)
     private BigDecimal latitude;
 
