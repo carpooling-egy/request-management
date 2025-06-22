@@ -130,27 +130,33 @@ public class MatchingResultConsumerService {
             return;
         }
         try {
-            List<Message> messages = sub.fetch(10, Duration.ofSeconds(2));
-            for (Message msg : messages) {
-                try {
-                    MatchingResultDTO dto = objectMapper.readValue(msg.getData(), MatchingResultDTO.class);
-                    // print out the message
-                    log.debug("Received message: {}", dto);
-                    matchingResultService.processMatchingResult(dto);
-                    log.info("[{}] OfferID: {}, Requests: {}, Points: {}",
-                            consumerType,
-                            dto.getOfferId(),
-                            dto.getAssignedMatchedRequests().size(),
-                            dto.getPath().size()
-                    );
-                } catch (Exception e) {
-                    log.error("Failed to parse message: {}", e.getMessage());
-                    e.printStackTrace(
-                            System.err
-                    );
-                    log.debug("Raw payload: {}", new String(msg.getData()));
-                } finally {
-                    msg.ack();
+            while (true) {
+                List<Message> messages = sub.fetch(10, Duration.ofSeconds(2));
+                if (messages.isEmpty()) {
+                    log.info("No messages received, waiting for next poll...");
+                    return; // no messages, exit the loop
+                }
+                for (Message msg : messages) {
+                    try {
+                        MatchingResultDTO dto = objectMapper.readValue(msg.getData(), MatchingResultDTO.class);
+                        // print out the message
+                        log.debug("Received message: {}", dto);
+                        matchingResultService.processMatchingResult(dto);
+                        log.info("[{}] OfferID: {}, Requests: {}, Points: {}",
+                                consumerType,
+                                dto.getOfferId(),
+                                dto.getAssignedMatchedRequests().size(),
+                                dto.getPath().size()
+                        );
+                    } catch (Exception e) {
+                        log.error("Failed to parse message: {}", e.getMessage());
+                        e.printStackTrace(
+                                System.err
+                        );
+                        log.debug("Raw payload: {}", new String(msg.getData()));
+                    } finally {
+                        msg.ack();
+                    }
                 }
             }
         } catch (Exception e) {
