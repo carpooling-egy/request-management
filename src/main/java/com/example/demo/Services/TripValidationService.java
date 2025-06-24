@@ -24,10 +24,10 @@ public class TripValidationService {
             RiderRequestRepository riderRepo,
             DriverOfferRepository driverRepo,
             RouteService routeService,
-            @Value("${trip.minLeadTimeMinutes}") int minLeadMinutes,
-            @Value("${trip.maxUpcomingTrips}") int maxUpcomingTrips,
-            @Value("${trip.maxTripsPerDay}") int maxTripsPerDay,
-            @Value("${trip.maxTripsToday}") int maxTripsToday
+            @Value("${trip.min-lead-time-minutes}") int minLeadMinutes,
+            @Value("${trip.max-upcoming-trips}") int maxUpcomingTrips,
+            @Value("${trip.max-trips-per-day}") int maxTripsPerDay,
+            @Value("${trip.max-trips-today}") int maxTripsToday
     ) {
         this.riderRepo        = riderRepo;
         this.driverRepo       = driverRepo;
